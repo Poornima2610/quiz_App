@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/controller/home_screen_controller.dart';
+import 'package:flutter_application_1/view/persontage_screen/persontage_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,6 +12,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int currentquestionindex = 0;
   int? selectedAnswerIndex;
+  int rightAnsCount=0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,13 +45,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 4,
                 (index) => InkWell(
                       onTap: () {
-                        if(selectedAnswerIndex==null){
-                          selectedAnswerIndex=index;
-                          print(selectedAnswerIndex);
+                        if (selectedAnswerIndex == null) {
+                          selectedAnswerIndex = index;
+
+                          if(selectedAnswerIndex==HomeScreenController.questionsData[currentquestionindex].correctAnsInd){
+                            rightAnsCount++;
+                          }
+
+                          print(rightAnsCount);
                           setState(() {});
                         }
-                        
-                        
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -58,15 +63,22 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: Colors.transparent,
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
-                                  color: selectedAnswerIndex == index
-                                      ? selectedAnswerIndex ==
+                                  color: (index ==
                                               HomeScreenController
                                                   .questionsData[
                                                       currentquestionindex]
-                                                  .correctAnsInd
-                                          ? Colors.green
-                                          : Colors.red
-                                      : Colors.grey)),
+                                                  .correctAnsInd &&
+                                          selectedAnswerIndex != null)
+                                      ? Colors.green
+                                      : selectedAnswerIndex == index
+                                          ? selectedAnswerIndex ==
+                                                  HomeScreenController
+                                                      .questionsData[
+                                                          currentquestionindex]
+                                                      .correctAnsInd
+                                              ? Colors.green
+                                              : Colors.red
+                                          : Colors.grey)),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 15, vertical: 10),
@@ -80,8 +92,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 Icon(
-                                  Icons.close,
-                                  color: Colors.green,
+                                  buildIcons(index),
+                                  color: buildColor(index),
                                 )
                               ],
                             ),
@@ -100,8 +112,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (currentquestionindex <
                     HomeScreenController.questionsData.length - 1) {
                   currentquestionindex++;
+                  selectedAnswerIndex = null;
                   setState(() {});
                 }
+                else {
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PersontageScreen(
+                            righAnswerCount: rightAnsCount,
+                          ),
+                        ));
+                  }
               },
               child: Container(
                 width: double.infinity,
@@ -125,5 +147,45 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  Color buildColor(int index) {
+    if (index ==
+            HomeScreenController
+                .questionsData[currentquestionindex].correctAnsInd &&
+        selectedAnswerIndex != null) {
+      return Colors.green;
+    } else if (selectedAnswerIndex == index) {
+      if (selectedAnswerIndex ==
+          HomeScreenController
+              .questionsData[currentquestionindex].correctAnsInd) {
+        return Colors.green;
+      } else {
+        return Colors.red;
+      }
+    } else {
+      return Colors.grey;
+    }
+  }
+
+
+  IconData?  buildIcons(int index){
+    if (index ==
+            HomeScreenController
+                .questionsData[currentquestionindex].correctAnsInd &&
+        selectedAnswerIndex != null) {
+          return Icons.done;
+        }
+        else if(selectedAnswerIndex == index){
+           if (selectedAnswerIndex !=
+          HomeScreenController
+              .questionsData[currentquestionindex].correctAnsInd){
+                return Icons.close;
+              }
+
+
+        }else{
+          return null;
+        }
   }
 }
